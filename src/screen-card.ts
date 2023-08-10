@@ -4,15 +4,15 @@ import {
     getScreen,
 } from './screen-start';
 
-export interface Card {
+interface Card {
     value: string;
     symbol: string;
   }
 
 let selectedCards: Card[] = [];
 let numberOfPairs = 0;
-const cardSymbols = ['spades', 'hearts', 'diamonds', 'clubs'];
-const cardValues = ['A', 'K', 'Q', 'J', '10', '9', '8', '7', '6'];
+export const cardSymbols = ['spades', 'hearts', 'diamonds', 'clubs'];
+export const cardValues = ['A', 'K', 'Q', 'J', '10', '9', '8', '7', '6'];
 const cardDeck: Card[] = [];
 let startTime: Date;
 let timerId: NodeJS.Timer;
@@ -22,6 +22,19 @@ let totalTime = "";
 let result: boolean;
 
 const screenAllCards = document.getElementById('begin') as HTMLElement;
+
+export function createCards () {
+    for (let i = 0; i < cardSymbols.length; i++) {
+        for (let j = 0; j < cardValues.length; j++) {
+            let card = {
+                symbol: cardSymbols[i],
+                value: cardValues[j],
+            };
+            cardDeck.push(card);
+        }
+    }
+    return cardDeck;
+}
 
 export function renderCards() {
     screenAllCards.style.display = 'block';
@@ -47,15 +60,7 @@ export function renderCards() {
 
     screenAllCards.innerHTML = screenCards;
 
-    for (let i = 0; i < cardSymbols.length; i++) {
-        for (let j = 0; j < cardValues.length; j++) {
-            let card = {
-                symbol: cardSymbols[i],
-                value: cardValues[j],
-            };
-            cardDeck.push(card);
-        }
-    }
+createCards();
 
     const shuffledCards = cardDeck.sort(() => Math.random() - 0.5);
     let topDeck = '<div class="row">';
@@ -123,64 +128,59 @@ export function renderCards() {
 
     setTimeout(changeCardStyle, 5000);
 
-    function addRestartButtonListener() {
-        const restartButton = document.querySelector('.begin');
-        restartButton?.addEventListener('click', (event) => {
-            selectedCards = [];
-            event.preventDefault();
-            screenAllCards.style.display = 'none';
-            if(screenFirstElement) {
-                screenFirstElement.style.display = 'flex';
-            }
-            getScreen();
-            });
-    }
-    addRestartButtonListener();
-
-    function choiceCard() {
-        const cardFrontElements = document.querySelectorAll('.card');
-    
-        cardFrontElements.forEach((cardFrontElement) => {
-            const element = cardFrontElement as HTMLElement;
-    
-            element.addEventListener('click', (event) => {
-                event.stopPropagation();
-                element.classList.remove('selected');
-                element
-                    .querySelectorAll(
-                        '.value-center, .symbol-top-left, .symbol-bottom-right'
-                    )
-                    .forEach((childElement) => {
-                        const child = childElement as HTMLElement;
-                        child.style.display = 'block';
-                    });
-    
-                const valueCard = element.dataset.value;
-                const symbolCard = element.dataset.symbol;
-    
-                if (selectedCards.length < 2) {
-                    if (valueCard && symbolCard !== undefined) {
-                    selectedCards.push({
-                        value: valueCard,
-                        symbol: symbolCard,
-                    });
-                }
-                } else {
-                    if (valueCard && symbolCard !== undefined) {
-                        selectedCards = [{ value: valueCard, symbol: symbolCard }];
-                    }
-                }
-    
-                if (selectedCards.length === 2) {
-                    compareCards();
-                }
-            });
+    const restartButton = document.querySelector('.begin');
+    restartButton?.addEventListener('click', (event) => {
+        selectedCards = [];
+        event.preventDefault();
+        screenAllCards.style.display = 'none';
+        if(screenFirstElement) {
+            screenFirstElement.style.display = 'flex';
+        }
+        getScreen();
         });
-    }
-    choiceCard();
+
+    const cardFrontElements = document.querySelectorAll('.card');
+    
+    cardFrontElements.forEach((cardFrontElement) => {
+        const element = cardFrontElement as HTMLElement;
+
+        element.addEventListener('click', (event) => {
+            event.stopPropagation();
+            element.classList.remove('selected');
+            element
+                .querySelectorAll(
+                    '.value-center, .symbol-top-left, .symbol-bottom-right'
+                )
+                .forEach((childElement) => {
+                    const child = childElement as HTMLElement;
+                    child.style.display = 'block';
+                });
+
+            const valueCard = element.dataset.value;
+            const symbolCard = element.dataset.symbol;
+
+            if (selectedCards.length < 2) {
+                if (valueCard && symbolCard !== undefined) {
+                selectedCards.push({
+                    value: valueCard,
+                    symbol: symbolCard,
+                });
+            }
+            } else {
+                if (valueCard && symbolCard !== undefined) {
+                    selectedCards = [{ value: valueCard, symbol: symbolCard }];
+                }
+            }
+
+            if (selectedCards.length === 2) {
+                compareCards();
+            }
+        });
+    });
+
 }
 
-export function compareCards() {
+function compareCards() {
     const selectedCard1 = selectedCards[0];
     const selectedCard2 = selectedCards[1];
     if (
