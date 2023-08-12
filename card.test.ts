@@ -16,6 +16,7 @@ test('Проверка формирования карт в колоде', () =>
         value: cardValues[j],
       };
       cardDeck.push(card);
+      
     }
   }
 
